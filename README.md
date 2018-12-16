@@ -1,4 +1,3 @@
-# britec
 
 ## Project setup
 ```
