@@ -111,10 +111,9 @@
     prev () {
       this.page > 1 ? this.page-- : ''
     },
-    doneEditing(description='', index=Number) {
+    updateItem(description='', index=Number) {
       if(!description.length) return    //? Shouldn't lose data
-      let items = this.tableData[this.getCorrectIndex(index)]
-      items.Description = description
+      this.tableData[this.getCorrectIndex(index)].Description = description
     }
   },
   provide() {
@@ -142,7 +141,7 @@
       'toggleOne', 
       'removeAll',
       'removeOne',
-      'doneEditing'
+      'updateItem'
     ]
   },
   // watch: {

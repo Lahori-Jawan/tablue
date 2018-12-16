@@ -16,14 +16,14 @@
         </label>
       </th>
       <td class="capitalize">{{ item.Name }}</td>
-      <td class="capitalize"> 
-        <label class="description" @dblclick="controller.editing = item.Description">{{ item.Description }}</label>
-        <!-- <label @dblclick="controller.editDescription(Description, i)">{{ item.Description }}</label> -->
-        <input :class="{'editing': controller.editing === item.Description}" type="text" 
-          :value="item.Description" 
-          @change="(e) => controller.doneEditing(e.target.value, i)"
-          @keyup.enter="controller.editing = null" 
-          @keyup.esc="controller.editing = null"
+      <td class="capitalize description" @dblclick="editItem(item.Description)">
+        <label>{{ item.Description }}</label>
+        <input :class="{'editing': Description === item.Description && editing}" type="text" 
+          :value="item.Description"
+          v-focus
+          @input="e => newDesc = e.target.value"
+          @keyup.enter="controller.updateItem(newDesc, i)" 
+          @keyup.esc="editing = false"
           >
       </td>
       <td>{{ item.Date }}</td>
@@ -33,6 +33,11 @@
   </tbody>
 </template>
 <script>
+const focus = {
+    inserted(el) {
+      el.focus()
+    },
+  }
 export default {
   inject: {
     handler: 'handler',
@@ -44,10 +49,22 @@ export default {
       required: true
     }
   },
-  computed: {
-    paymentData: {
-      get: function() { return this.handler.paymentData() }
+  data: () => ({
+    editing: false,
+    Description: '',
+    newDesc: ''
+  }),
+  methods: {
+    editItem(store) {
+      this.editing = true
+      this.Description = store
     },
+  },
+  directives: {focus},
+  computed: {
+    // paymentData: {
+    //   get: function() { return this.handler.paymentData() }
+    // },
     rowsPerPage: {
       get: function() { return this.handler.rowsPerPage }
     }
@@ -68,11 +85,23 @@ export default {
 </script>
 
 <style scoped>
-.description ~ input {
+td {
+  position: relative;
+  vertical-align: middle;
+}
+td label {
+  display: block;
+}
+.description  input {
   display: none;
 }
-.description ~input.editing {
+.description input.editing {
   display: block;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  left: 0;
+  height: 100%;
 }
 .editing {
   display: block;
