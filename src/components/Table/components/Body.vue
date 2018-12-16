@@ -33,11 +33,6 @@
   </tbody>
 </template>
 <script>
-const focus = {
-    inserted(el) {
-      el.focus()
-    },
-  }
 export default {
   inject: {
     handler: 'handler',
@@ -60,7 +55,13 @@ export default {
       this.Description = store
     },
   },
-  directives: {focus},
+  directives: {
+    focus: {
+      inserted(el) {
+        el.focus()
+      },
+    }
+  },
   computed: {
     // paymentData: {
     //   get: function() { return this.handler.paymentData() }
@@ -85,17 +86,24 @@ export default {
 </script>
 
 <style scoped>
+.capitalize {
+  text-transform: capitalize;
+}
+.uppercase {
+  text-transform: uppercase;
+}
 td {
   position: relative;
   vertical-align: middle;
 }
 td label {
   display: block;
+  font-weight: 400;
 }
-.description  input {
+td  input {
   display: none;
 }
-.description input.editing {
+td input.editing {
   display: block;
   position: absolute;
   top: 0;
@@ -103,20 +111,8 @@ td label {
   left: 0;
   height: 100%;
 }
-.editing {
-  display: block;
-}
-.capitalize {
-  text-transform: capitalize;
-}
-.uppercase {
-  text-transform: uppercase;
-}
-label {
-    font-weight: 400;
-}
 tr {
-    font-size: .925rem;
+  font-size: .925rem;
 }
 .table.is-narrow td, 
 .table.is-narrow th {

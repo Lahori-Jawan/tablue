@@ -53,10 +53,10 @@
       //! a potential bug may be lurking here in the 'end' state for 'All/string' case
       this.from < 0 || this.from > this.tableData.length ? (this.from = 0, this.end = this.rowsPerPage) : ''
       let pageData = this.tableData.slice(this.from,this.end);
-      this.checkSelectedStatus(pageData)
+      this.checkSelectedPageStatus(pageData)
       return pageData
     },
-    checkSelectedStatus(items=[]) {
+    checkSelectedPageStatus(items=[]) {
       let status = items.every((item,i) => this.selected.includes(this.getCorrectIndex(i)))
       this.allChecked = status
     },
@@ -99,8 +99,9 @@
     },
     toggelAll() {
       let items = this.tableData.slice(this.from, this.end)
+      let [idx1, idx2] = [this.selected.indexOf(this.from), this.selected.indexOf(this.end-1)]
       items.map((item,i) => {
-        if(this.allChecked) return this.selected.splice(this.from, this.end)
+        if(this.allChecked) return this.selected.splice(idx1, idx2)
         this.selected.push(this.getCorrectIndex(i))
       })
       this.allChecked = !this.allChecked
@@ -112,7 +113,7 @@
       this.page > 1 ? this.page-- : ''
     },
     updateItem(description='', index=Number) {
-      if(!description.length) return    //? Shouldn't lose data
+      if(!description.length) return
       this.tableData[this.getCorrectIndex(index)].Description = description
     }
   },
