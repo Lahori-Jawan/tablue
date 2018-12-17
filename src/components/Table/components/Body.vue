@@ -4,10 +4,10 @@
       <div class="overlay">Loading</div>
     </tr>
     <!-- <tr v-for="(item,i) in paymentData" :key="(item.ID+(new Date().getMilliseconds()))"> -->
-    <tr v-for="(item,i) in controller.renderData()" :key="`${item.ID}${(new Date().getMilliseconds())}`" v-else>
+    <tr v-for="(item,i) in renderData" :key="`${item.ID}${(new Date().getMilliseconds())}`" v-else>
       <th>
         <input :id="item.ID" type="checkbox" @change="controller.toggleOne(i)"
-          :checked="controller.selected.includes(controller.getCorrectIndex(i))" >
+          :checked="controller.selected.includes(controller.getValidIndex(i))" >
         <!-- <input :id="item.ID" type="checkbox" :checked="controller.selected.includes(i)" @change="controller.toggleSelected(i)"> -->
       </th>
       <th class="uppercase">
@@ -35,7 +35,6 @@
 <script>
 export default {
   inject: {
-    handler: 'handler',
     controller: 'reactiveDependency'
   },
   props: {
@@ -63,22 +62,26 @@ export default {
     }
   },
   computed: {
+    renderData () {
+      return this.controller.renderData()
+    }
     // paymentData: {
     //   get: function() { return this.handler.paymentData() }
     // },
-    rowsPerPage: {
-      get: function() { return this.handler.rowsPerPage }
-    }
+    // rowsPerPage: {
+    //   get: function() { return this.handler.rowsPerPage }
+    // }
   },
   watch: {
     data (oldobj, newobj) {
       let objects = JSON.parse(JSON.stringify(newobj));   // don't mutate props
+      // if(objects.length === this.controller.renderData().length) return
       objects.map(obj => {
         for(let prop in obj) {
           typeof obj[prop] === 'string' && prop !== 'Date' ? obj[prop] = obj[prop].toLowerCase() : ''
         }
-        this.handler.register(obj)
-        this.handler.sortOrder()
+        this.controller.register(obj)
+        this.controller.sortOrder()
       })
     }
   }
