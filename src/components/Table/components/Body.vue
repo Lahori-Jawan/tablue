@@ -37,6 +37,9 @@ export default {
   inject: {
     controller: 'reactiveDependency'
   },
+  created () {
+    this.registerOnParent(this.data)
+  },
   props: {
     data: {
       type: Array,
@@ -53,6 +56,16 @@ export default {
       this.editing = true
       this.Description = store
     },
+    registerOnParent(data) {
+      let objects = JSON.parse(JSON.stringify(data));   // don't mutate props
+      objects.map(obj => {
+        for(let prop in obj) {
+          typeof obj[prop] === 'string' && prop !== 'Date' ? obj[prop] = obj[prop].toLowerCase() : ''
+        }
+        this.controller.register(obj)
+      })
+      this.controller.sortOrder()
+    }
   },
   directives: {
     focus: {
@@ -73,16 +86,8 @@ export default {
     // }
   },
   watch: {
-    data (oldobj, newobj) {
-      let objects = JSON.parse(JSON.stringify(newobj));   // don't mutate props
-      // if(objects.length === this.controller.renderData().length) return
-      objects.map(obj => {
-        for(let prop in obj) {
-          typeof obj[prop] === 'string' && prop !== 'Date' ? obj[prop] = obj[prop].toLowerCase() : ''
-        }
-        this.controller.register(obj)
-        this.controller.sortOrder()
-      })
+    data (latestData) {
+      this.registerOnParent(latestData)
     }
   }
 }

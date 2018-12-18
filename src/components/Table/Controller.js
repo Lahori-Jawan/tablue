@@ -22,6 +22,7 @@
       get () { return this.rowsPerPage },
       set (value) { 
         typeof value === 'string' ? this.end = this.tableData.length : ''
+        console.log('all',value, this.end, this.tableData.length)
         this.rowsPerPage = value
        }
     },
@@ -30,7 +31,7 @@
       set (value) { this.search = value }
     },
     totalPages() {
-      return typeof this.rowsPerPage === 'string' ? 0 : this.searchData.length ? this.searchPages : this.allPages
+      return typeof this.rowsPerPage === 'string' ? 1 : this.searchData.length ? this.searchPages : this.allPages
     },
     searchPages () { return Math.ceil(this.searchData.length / this.rowsPerPage) },
     allPages () { return Math.ceil(this.tableData.length / this.rowsPerPage) }
@@ -49,8 +50,12 @@
         return [...Object.values(object)].some(item => item.includes(this.searchText)) ? this.found.push(index) : false
       })
       this.found = [...(new Set(this.found))]
-      console.log('found', this.found)
-      return this.getCurrentPageData(true)
+      return typeof this.rowsPerPage === 'string' ? this.checkSelectedPageStatus(this.searchData) : this.getCurrentPageData(true)
+    },
+    getPageData () {
+      this.searchData = []
+      if(typeof this.rowsPerPage === 'string') return this.checkSelectedPageStatus(this.tableData)
+      return this.getCurrentPageData(false)
     },
     getCurrentPageData(search=false) {
       let data =  search ? this.searchData : this.tableData
@@ -58,18 +63,12 @@
       this.end = this.rowsPerPage * this.page
       this.from < 0 || this.from > data.length ? (this.from = 0, this.end = this.rowsPerPage) : ''
       let pageData = data.slice(this.from, this.end)
-      this.checkSelectedPageStatus(pageData)
-      return pageData
-    },
-    getPageData () {
-      this.found = []
-      this.searchData = []
-      if(typeof this.rowsPerPage === 'string') return this.tableData
-      return this.getCurrentPageData(false)
+      return this.checkSelectedPageStatus(pageData)
     },
     checkSelectedPageStatus(items=[]) {
       let status = items.every((item,i) => this.selected.includes(this.getValidIndex(i)))
       this.allChecked = status
+      return items
     },
     sortOrder(column='Date') {
       let that = this
@@ -148,8 +147,8 @@
     ]
   },
   // watch: {
-  //   tableData (watch) {
-  //     console.log({watch})
+  //   tableData (data) {
+  //     console.log({data})
   //     // unwatch()
   //   }
   // }
