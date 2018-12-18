@@ -2,7 +2,7 @@
   <div>
     <!-- Configurations -->
     <!-- search -->
-    <input type="text" v-model="searchText" v-debounce="700">
+    <input type="text" v-model.lazy="searchText" v-debounce="250">
     <!-- filter -->
     <select v-model="perPage" v-if="options.length">
       <option v-for="option in options" :key="option" :value="option">
@@ -53,7 +53,7 @@ export default {
     },
     data: {
       type: Array,
-      required: true
+      default: () => []
     },
     options: {
       type: Array,

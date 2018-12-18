@@ -1,8 +1,8 @@
 <template>
   <thead>
     <tr>
-      <th v-for="(title, i) in titles" :key="i" v-html="title" v-if="title.length"
-        @click="$emit('order',title)"></th>
+      <th v-for="(title, i) in titles" :key="i" v-html="title" @click="$emit('order',title)"
+        v-if="title.length"></th>
       <th v-else>
         <input type="checkbox" :checked="controller.allChecked" @change="$emit('toggelAll')">
       </th>

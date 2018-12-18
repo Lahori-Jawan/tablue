@@ -6,7 +6,9 @@
  export default {
   data: () => ({
     tableData: [],  //* should be lowercase for easy search
+    searchData: [],
     search: '',
+    found: [],
     ascendingOrder: true,
     rowsPerPage: 10,
     selected: [],
@@ -14,13 +16,13 @@
     page: 1,
     end: 1,
     allChecked: false,
-    editing: ''
   }),
   computed: {
     perPage: {
       get () { return this.rowsPerPage },
       set (value) { 
         typeof value === 'string' ? this.end = this.tableData.length : ''
+        console.log('all',value, this.end, this.tableData.length)
         this.rowsPerPage = value
        }
     },
@@ -29,36 +31,44 @@
       set (value) { this.search = value }
     },
     totalPages() {
-      return typeof this.rowsPerPage === 'string' ? 0 : Math.ceil(this.tableData.length / this.rowsPerPage)
+      return typeof this.rowsPerPage === 'string' ? 1 : this.searchData.length ? this.searchPages : this.allPages
     },
+    searchPages () { return Math.ceil(this.searchData.length / this.rowsPerPage) },
+    allPages () { return Math.ceil(this.tableData.length / this.rowsPerPage) }
   },
   methods: {
     renderData() {
-      // this.getSelectedStatus
-      console.log('new page')
-      return this.search.length ? this.find() : this.getPageData()
+      return this.search.length > 1 ? this.getSearchData() : this.getPageData()
     },
     register (item) {
       this.tableData.push(item)
     },
-    find() {  //* use regex.test for performance boost or String.indexOf
-      return this.tableData.filter(object => [...Object.values(object)].some(item => item.includes(this.searchText)))
+    getSearchData() {  //* use regex.test for performance boost or String.indexOf
+      this.found = []
+      // return this.tableData.filter(object => [...Object.values(object)].some(item => item.includes(this.searchText)))
+      this.searchData = this.tableData.filter((object,index) => {
+        return [...Object.values(object)].some(item => item.includes(this.searchText)) ? this.found.push(index) : false
+      })
+      this.found = [...(new Set(this.found))]
+      return typeof this.rowsPerPage === 'string' ? this.checkSelectedPageStatus(this.searchData) : this.getCurrentPageData(true)
     },
     getPageData () {
-      //? case of 'All' filter
-      if(typeof this.rowsPerPage === 'string') return this.tableData
+      this.searchData = []
+      if(typeof this.rowsPerPage === 'string') return this.checkSelectedPageStatus(this.tableData)
+      return this.getCurrentPageData(false)
+    },
+    getCurrentPageData(search=false) {
+      let data =  search ? this.searchData : this.tableData
       this.from = this.rowsPerPage * (this.page-1)
       this.end = this.rowsPerPage * this.page
-      //? case of Edges i.e. max/min
-      //! a potential bug may be lurking here in the 'end' state for 'All/string' case
-      this.from < 0 || this.from > this.tableData.length ? (this.from = 0, this.end = this.rowsPerPage) : ''
-      let pageData = this.tableData.slice(this.from,this.end);
-      this.checkSelectedStatus(pageData)
-      return pageData
+      this.from < 0 || this.from > data.length ? (this.from = 0, this.end = this.rowsPerPage) : ''
+      let pageData = data.slice(this.from, this.end)
+      return this.checkSelectedPageStatus(pageData)
     },
-    checkSelectedStatus(items=[]) {
-      let status = items.every((item,i) => this.selected.includes(this.getCorrectIndex(i)))
+    checkSelectedPageStatus(items=[]) {
+      let status = items.every((item,i) => this.selected.includes(this.getValidIndex(i)))
       this.allChecked = status
+      return items
     },
     sortOrder(column='Date') {
       let that = this
@@ -75,79 +85,70 @@
       this.ascendingOrder = !this.ascendingOrder
     },
     removeAll() {
-      if(!this.selected.length) throw new Error('No Item Index Provided');
+      if(!this.selected.length) throw new Error('No Item Index Provided', 'Controller.js', 87);
       this.selected.sort((a, b) => a - b);   //? so the array index doesn't get messed up after each removal
-      while(this.selected.length) this.tableData.splice(this.selected.pop(),1);
+      while(this.selected.length) { this.tableData.splice(this.selected.pop(),1) }
       this.allChecked = false
     },
     removeOne(index=Number) {
-      if(index < 0 || index > this.tableData.length) throw new RangeError('Item did not match', 'Controller.js', 74);
-      this.tableData.splice(this.getCorrectIndex(index),1);
-    },
-    /* 
-    ? we need to find actual index (in accordance with dataTable) to start indexing by adding state 'from' 
-    ? into selected item's 'index' (which belongs to v-for in template) because we are only sending 
-    ? new array of data i.e. slice() whereas removing from main data source i.e. dataTable
-    */
-    getCorrectIndex(index) {
-      return this.from + index;
+      if(index < 0 || index > this.tableData.length) throw new RangeError('Item did not match', 'Controller.js', 85);
+      this.tableData.splice(this.getValidIndex(index),1);
     },
     toggleOne(value=Number) {
-      if(isNaN(value)) throw new TypeError('value should be of type Number', 'Controller.js', 86)
-      value = this.getCorrectIndex(value)
+      if(isNaN(value)) throw new TypeError('value should be of type Number', 'Controller.js', 83)
+      value = this.getValidIndex(value)
       this.selected.includes(value) ? this.selected.splice(this.selected.indexOf(value),1): this.selected.push(value)
     },
     toggelAll() {
       let items = this.tableData.slice(this.from, this.end)
-      items.map((item,i) => {
-        if(this.allChecked) return this.selected.splice(this.from, this.end)
-        this.selected.push(this.getCorrectIndex(i))
-      })
+      //* index vs value  
+      let [idx1, idx2] = [this.selected.indexOf(this.from), this.selected.indexOf(this.end-1)]
+      this.allChecked ? this.selected.splice(idx1, idx2+1) : items.map((item,i) => this.selected.push(this.getValidIndex(i)))
+      this.selected = [...[...(new Set(this.selected))].sort((a,b) => a-b)]
       this.allChecked = !this.allChecked
     },
     next () {
-      this.page < this.totalPages ? this.page++ : ''
+      this.page < this.totalPages && this.page++
     },
     prev () {
-      this.page > 1 ? this.page-- : ''
+      this.page > 1 && this.page--
     },
-    doneEditing(description='', index=Number) {
-      if(!description.length) return    //? Shouldn't lose data
-      let items = this.tableData[this.getCorrectIndex(index)]
-      items.Description = description
-    }
-  },
-  provide() {
-    return {
-      handler: {
-        // selected: this.selected,
-        register: this.register,
-        renderData: this.renderData,
-        sortOrder: this.sortOrder,
-        
-        removeItems: this.removeItems,
-        // toggleSelected: this.toggleSelected
-      }
-    }
+    updateItem(description='', index=Number) {
+      if(!description.length) return
+      this.tableData[this.getValidIndex(index)].Description = description
+    },
+    /*
+    ? we need to find actual index (in accordance with dataTable) to start indexing by adding state 'from' 
+    ? into selected item's 'index' (which belongs to v-for in template) because we are only sending 
+    ? new array of data i.e. slice() whereas removing from main data source i.e. dataTable
+    */
+   /*
+   ?  for search, return from 'found' indices 
+   */
+    getValidIndex(index) {
+      return this.searchData.length ? this.found[this.from + index] : this.from + index;
+    },
   },
   reactiveProvide: {
     name: 'reactiveDependency',
     include: [
-      'editing',
       'allChecked',
       'selected',
+      'register',
+      'sortOrder',
+      'removeItems',
       'perPage', 
       'renderData',
-      'getCorrectIndex',
+      'getValidIndex',
       'toggleOne', 
       'removeAll',
       'removeOne',
-      'doneEditing'
+      'updateItem'
     ]
   },
   // watch: {
-  //   tableData (watch) {
-  //     console.log({watch})
+  //   tableData (data) {
+  //     console.log({data})
   //     // unwatch()
   //   }
   // }

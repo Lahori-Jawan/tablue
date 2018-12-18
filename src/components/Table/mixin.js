@@ -5,7 +5,7 @@ export default {
   props: {
     titles: {
       type: Array,
-      default: []
+      default: () => []
     }
   }
 }
