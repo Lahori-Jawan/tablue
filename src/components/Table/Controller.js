@@ -16,13 +16,13 @@
     page: 1,
     end: 1,
     allChecked: false,
+    lastpage: 1
   }),
   computed: {
     perPage: {
       get () { return this.rowsPerPage },
       set (value) { 
         typeof value === 'string' ? this.end = this.tableData.length : ''
-        console.log('all',value, this.end, this.tableData.length)
         this.rowsPerPage = value
        }
     },
@@ -31,21 +31,20 @@
       set (value) { this.search = value }
     },
     totalPages() {
-      return typeof this.rowsPerPage === 'string' ? 1 : this.searchData.length ? this.searchPages : this.allPages
+      return typeof this.rowsPerPage === 'string' ? 1 : this.searchText.length ? this.searchPages : this.dataPages
     },
     searchPages () { return Math.ceil(this.searchData.length / this.rowsPerPage) },
-    allPages () { return Math.ceil(this.tableData.length / this.rowsPerPage) }
+    dataPages () { return Math.ceil(this.tableData.length / this.rowsPerPage) }
   },
   methods: {
     renderData() {
-      return this.search.length > 1 ? this.getSearchData() : this.getPageData()
+      return this.search.length ? this.getSearchData() : this.getPageData()
     },
     register (item) {
       this.tableData.push(item)
     },
     getSearchData() {  //* use regex.test for performance boost or String.indexOf
       this.found = []
-      // return this.tableData.filter(object => [...Object.values(object)].some(item => item.includes(this.searchText)))
       this.searchData = this.tableData.filter((object,index) => {
         return [...Object.values(object)].some(item => item.includes(this.searchText)) ? this.found.push(index) : false
       })
@@ -66,8 +65,7 @@
       return this.checkSelectedPageStatus(pageData)
     },
     checkSelectedPageStatus(items=[]) {
-      let status = items.every((item,i) => this.selected.includes(this.getValidIndex(i)))
-      this.allChecked = status
+      this.allChecked = items.every((item,i) => this.selected.includes(this.getValidIndex(i)))
       return items
     },
     sortOrder(column='Date') {
@@ -113,6 +111,11 @@
     prev () {
       this.page > 1 && this.page--
     },
+    setPage(page=Number){
+      if(isNaN(page)) return new TypeError('Invalid value given', 'Controller.js', 123)
+      this.page = page
+      this.lastpage = page
+    },
     updateItem(description='', index=Number) {
       if(!description.length) return
       this.tableData[this.getValidIndex(index)].Description = description
@@ -125,6 +128,9 @@
    /*
    ?  for search, return from 'found' indices 
    */
+  /*
+  TODO::Refactor to remove the need of this method
+  */
     getValidIndex(index) {
       return this.searchData.length ? this.found[this.from + index] : this.from + index;
     },
@@ -146,10 +152,17 @@
       'updateItem'
     ]
   },
-  // watch: {
-  //   tableData (data) {
-  //     console.log({data})
-  //     // unwatch()
-  //   }
-  // }
+  watch: {
+    /*
+    ? Manages position of active page when searching, deleting or restoring
+    */
+    totalPages (newpage, oldpage) {
+      if(this.page < newpage) return
+      this.page = (this.lastpage > newpage) ? newpage : this.lastpage
+      // unwatch()
+    },
+    searchText(value) {
+      this.page = value.length ? 1 : this.lastpage
+    }
+  }
 }

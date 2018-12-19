@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="box">
     <!-- Configurations -->
     <!-- search -->
     <input type="text" v-model.lazy="searchText" v-debounce="250">
@@ -12,11 +12,8 @@
     <!-- delete all -->
     <a :class="{'delete': true, 'no-click':!selected.length}" @click="removeAll()">&nbsp;</a>
     <!-- pagination -->
-    <div class="pagination">
-      <a class="prev" @click="prev()">Prev</a>
-      <a v-for="p in totalPages" :key="p" @click="page=p"> {{ p }}</a>
-      <a class="next" @click="next()" style="padding-left: 2.5rem">Next</a>
-    </div>
+    
+    <Pagination :current="page" :totalPages="totalPages" v-bind="{next, prev, setPage}" />
     <!-- Table -->
     <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth">
       <Head :titles="titles" v-on:order="sortOrder" v-if="titles.length" v-on:toggelAll="toggelAll" />
@@ -28,9 +25,9 @@
 </template>
 
 <script>
-import Controller from './Controller.js';
 import debounce from '../../3rdparty/v-debounce.js';
-import {Head, Body, Footer} from './components';
+import Controller from './Controller.js';
+import {Head, Body, Footer, Pagination} from './components';
 
 export default {
   name: 'Table',
@@ -71,6 +68,7 @@ export default {
     Head, 
     Body, 
     Footer,
+    Pagination
   }
 }
 </script>
