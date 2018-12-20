@@ -6,26 +6,29 @@
     <ul class="pagination-list">
       <!-- First $max links -->
       <li v-for="p in first" :key="p">
-        <a class="pagination-link" :class="{'is-current': p === getActivePage }" aria-label="Goto page 1" 
-         @click="setPage(p)">
+        <a class="pagination-link" :class="{'is-current': p === getActivePage }" 
+        :aria-label="`Goto page ${p}`" @click="setPage(p)">
           {{ p }}
         </a>
       </li>
       <!-- must ellipse -->
-      <li><span class="pagination-ellipsis">&hellip;</span></li>
+      <li v-if="last !== 0"><span class="pagination-ellipsis">&hellip;</span></li>
       <!-- middle links if available -->
-      <li v-if="getMiddle3Numbers.length" v-for="p in getMiddle3Numbers" :key="p+'i'">
-        <a class="pagination-link" :class="{'is-current': p === getActivePage }" aria-label="Goto page 1" 
-         @click="setPage(p)">
-          {{ p }}
-        </a>
-      </li>
-      <!-- optional ellipse if middle links available -->
-      <li v-if="getMiddle3Numbers.length"><span class="pagination-ellipsis">&hellip;</span></li>
-      <!-- last $max links -->
+      <template v-if="getMiddle3Numbers.length">
+        <li v-for="p in getMiddle3Numbers" :key="p+'i'">
+          <a class="pagination-link" :class="{'is-current': p === getActivePage }" 
+          :aria-label="`Goto page ${p}`" @click="setPage(p)">
+            {{ p }}
+          </a>
+        </li>
+        <!-- optional ellipse if middle links available -->
+        <li><span class="pagination-ellipsis">&hellip;</span></li>
+        <!-- last $max links -->
+      </template>
       <li v-for="(p,i) in last" :key="renderLastNumber[i]+'i'">
-        <a class="pagination-link" :class="{'is-current': renderLastNumber[i] === getActivePage  }" aria-label="Goto page 1" 
-         @click="setPage(renderLastNumber[i])">
+        <a class="pagination-link" :class="{'is-current': renderLastNumber[i] === getActivePage  }" 
+        :aria-label="`Goto page ${renderLastNumber[i]}`"
+        @click="setPage(renderLastNumber[i])">
           {{ renderLastNumber[i] }}
         </a>
       </li>
@@ -78,6 +81,7 @@ export default {
       return this.current ? this.current : 1
     },
     getFirstLastNumbers () {
+      if (this.totalPages < 5) return this.checkForSimplePagination()
       return [this.first, this.last] = this.max.some((item,i) => i+1 === this.current) ? [this.max.length, 1] : [1,this.getLastNumbers]
     },
     getLastNumbers () {
@@ -91,6 +95,7 @@ export default {
     renderLastNumber () {
       return this.last === 1 ? {0: this.totalPages} : Object.assign({},this.max.map((item,i) => this.totalPages-i ).reverse())
     },
+    
     hasPrev() {
       return this.getActivePage > 1
     },
@@ -98,6 +103,15 @@ export default {
       return this.getActivePage < this.totalPages
     },
   },
+  methods: {
+    checkForSimplePagination () {
+        this.first = this.totalPages
+        this.last = 0
+        console.log('simple', this.first, this.totalPages)
+        // if()
+      // return []
+    },
+  }
 }
 </script>
 
