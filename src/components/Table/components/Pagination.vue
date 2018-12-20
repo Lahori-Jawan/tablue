@@ -73,7 +73,8 @@ export default {
     return {
       first: 3,
       last: 0,
-      max: [...Array(3)]
+      max: [...Array(3)],
+      lastEdge: null
     }
   },
   computed: {
@@ -85,17 +86,26 @@ export default {
       return [this.first, this.last] = this.max.some((item,i) => i+1 === this.current) ? [this.max.length, 1] : [1,this.getLastNumbers]
     },
     getLastNumbers () {
-      let last = (this.totalPages - this.max.length) + 1  //? +1 converts index to value for comparison
-      return this.max.some((item,i) => (last+i) === this.current) ? 3 : 1
+      this.lastEdge = (this.totalPages - this.max.length) + 1  //? +1 converts index to value for comparison
+      return this.max.some((item,i) => (this.lastEdge+i) === this.current) ? 3 : 1
     },
     getMiddle3Numbers () {
       let middleNumbers = [this.current-1, this.current, this.current+1]
-      return JSON.stringify(this.getFirstLastNumbers) === JSON.stringify([1,1]) ? middleNumbers : []
+      // return JSON.stringify(this.getFirstLastNumbers) === JSON.stringify([1,1]) ? middleNumbers : []
+      return JSON.stringify(this.getFirstLastNumbers) === JSON.stringify([1,1]) ? middleNumbers : this.getNextNumber
     },
     renderLastNumber () {
       return this.last === 1 ? {0: this.totalPages} : Object.assign({},this.max.map((item,i) => this.totalPages-i ).reverse())
     },
-    
+    getNextNumber () {
+      if(this.getActivePage === this.max.length) {
+        return [this.getActivePage + 1]
+      } else if(this.last > 1 && this.getActivePage === this.lastEdge) {
+        return [this.getActivePage - 1]
+      } else {
+        return []
+      }
+    },
     hasPrev() {
       return this.getActivePage > 1
     },
@@ -107,9 +117,6 @@ export default {
     checkForSimplePagination () {
         this.first = this.totalPages
         this.last = 0
-        console.log('simple', this.first, this.totalPages)
-        // if()
-      // return []
     },
   }
 }

@@ -2,35 +2,30 @@
   <div class="box">
     <!-- Configurations -->
     <!-- search -->
-    <input type="text" v-model.lazy="searchText" v-debounce="250">
+    <Search v-model.lazy="searchText" v-debounce="500" />
     <!-- filter -->
     <select v-model="perPage" v-if="options.length">
       <option v-for="option in options" :key="option" :value="option">
         {{ option }}
       </option>
     </select>
-    <!-- delete all -->
-    <a :class="{'delete': true, 'no-click':!selected.length}" @click="removeAll()">&nbsp;</a>
-    <!-- pagination -->
-    
-    <Pagination :current="page" :totalPages="totalPages" v-bind="{next, prev, setPage}" />
-    <!-- Table -->
-    <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth">
+    <Delete :class="{'no-click':!selected.length}" v-bind="{removeAll}" />
+    <Table>
       <Head :titles="titles" v-on:order="sortOrder" v-if="titles.length" v-on:toggelAll="toggelAll" />
       <Body :data="data" />
       <Footer v-if="hasFooter" :titles="titles" />
-    </table>
-    <!-- <Titles type="head" :titles="titles" /> -->
+    </Table>
+    <Pagination :current="page" :totalPages="totalPages" v-bind="{next, prev, setPage}" />
   </div>
 </template>
 
 <script>
-import debounce from '../../3rdparty/v-debounce.js';
+import debounce from '@/3rdparty/v-debounce.js';
 import Controller from './Controller.js';
-import {Head, Body, Footer, Pagination} from './components';
+import {Table, Head, Body, Footer, Pagination, Delete, Search} from './components';
 
 export default {
-  name: 'Table',
+  name: 'Dablue',
   extends: Controller,
   created () {
     this.rowsPerPage = this.rowPerPage
@@ -65,10 +60,13 @@ export default {
     debounce
   },
   components: {
+    Table,
     Head, 
     Body, 
     Footer,
-    Pagination
+    Pagination,
+    Delete,
+    Search
   }
 }
 </script>
@@ -78,4 +76,3 @@ export default {
   pointer-events: none;
 }
 </style>
-
