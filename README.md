@@ -1,4 +1,12 @@
 
+## [Demo](http://tablue.surge.sh/)
+
+## Flow
+```
+This component is based on DI(dependency injection) pattern utilizing Vue's provide/inject 
+functionality where Parent provides only public api to children
+```
+
 ## Project setup
 ```
 yarn install
@@ -6,20 +14,20 @@ yarn install
 
 ### Compiles and hot-reloads for development
 ```
-yarn run serve
-```
-
-### Compiles and minifies for production
-```
-yarn run build
+yarn serve
 ```
 
 ### Run your tests
 ```
-yarn run test
+yarn test
 ```
 
-### Lints and fixes files
+### Compiles and minifies for production
 ```
-yarn run lint
+yarn build
+```
+
+### Deployment
+```
+surge /path/to/dist/directory
 ```

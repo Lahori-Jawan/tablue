@@ -1,0 +1,11 @@
+{
+  "Name": "Nasir Khan",
+  "Education": "Graduation in Engineering",
+  "Country": "Pakistan",
+  "Passion": "Web",
+  "Profession": "Web",
+  "Dream": "Build something amazing",
+  "Motto": "KISS (keep it simple stupid)",
+  "Stack": "ES 6+, Node, Vue, Bulma, CSS(Flexbox+), HTML5",
+  "Short": "I love building data driven apps in Vue that react to user interactions and want to give end-user as much flexibility that doesn't disrupt the UX with DRY approach in mind"
+}
