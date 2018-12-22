@@ -1,8 +1,8 @@
 <template>
   <div id="app" class="container">
     <input type='file' accept='image/*' @change='openFile'>
-    <Table hasCheckbox hasFooter :rowPerPage="5" :options="[5, 10, 15, 'ALL']" :titles="titles" :data="tableData" />
-    <!-- <Table hasCheckbox hasFooter :rowPerPage="15" :options="[5, 10, 15]" :titles="titles" :data="tableData" /> -->
+    <Table hasCheckbox hasKeyboard :options="[5, 10, 15, 'ALL']" :titles="titles" :data="tableData" />
+    <!-- <Table  :titles="titles" :data="tableData" /> -->
   </div>
 </template>
 

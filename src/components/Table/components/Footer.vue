@@ -1,7 +1,9 @@
 <template>
   <tfoot>
     <tr>
-      <th v-for="(title, i) in titles" :key="i" v-html="title"></th>
+      <th v-for="(title, i) in titles" :key="i" v-html="title" @click="$emit('order',title)" 
+        v-if="title !== 'check'">
+      </th>
     </tr>
   </tfoot>
 </template>

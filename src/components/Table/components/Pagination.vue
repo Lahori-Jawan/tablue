@@ -1,7 +1,7 @@
 <template>
   <nav class="pagination is-rounded" role="navigation" aria-label="pagination" v-if="totalPages">
-    <a class="pagination-previous" @click="prev()" :disabled="!hasPrev">Previous</a>
-    <a class="pagination-next" @click="next()" :disabled="!hasNext">Next page</a>
+    <a class="pagination-previous" @click="prev()" @keydown.left="prev()" autofocus :disabled="!hasPrev">Previous</a>
+    <a class="pagination-next" @click="next()" @key.right="next()" :disabled="!hasNext">Next page</a>
     
     <ul class="pagination-list">
       <!-- First $max links -->
@@ -47,7 +47,15 @@
 //* 2: 1,---, $last1, $last2, $last3
 //* 3: 1,---, $middle1, $middle2, $middle3,---, $last
 export default {
+  created() {
+    // if(!this.keyboard) return
+  //  window.addEventListener('keyup', this.keyup)
+  },
   props: {
+    // keyboard: {
+    //   type: Boolean,
+    //   default: false
+    // },
     next: {
       type: Function,
       required: false
@@ -98,6 +106,7 @@ export default {
       return this.last === 1 ? {0: this.totalPages} : Object.assign({},this.max.map((item,i) => this.totalPages-i ).reverse())
     },
     getNextNumber () {
+      if(this.totalPages === this.max.length) return []
       if(this.getActivePage === this.max.length) {
         return [this.getActivePage + 1]
       } else if(this.last > 1 && this.getActivePage === this.lastEdge) {
@@ -118,6 +127,11 @@ export default {
         this.first = this.totalPages
         this.last = 0
     },
+    // keyup(e) {
+    //   if(e.keyCode === 37 || e.keyCode === 39) {
+    //     e.keyCode === 37 ? this.prev() : this.next()
+    //   }
+    // }
   }
 }
 </script>
@@ -126,5 +140,14 @@ export default {
 .pagination.is-rounded .pagination-link {
   font-size: 0.8rem
 }
+
+.pagination {
+  justify-content: flex-end;
+}
+
+.pagination-list {
+  flex-grow: 0;
+}
+
 </style>
 

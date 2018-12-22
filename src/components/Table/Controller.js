@@ -5,6 +5,7 @@
 
  export default {
   data: () => ({
+    loading: false,
     tableData: [],  //* should be lowercase for easy search
     searchData: [],
     search: '',
@@ -44,6 +45,7 @@
       this.tableData.push(item)
     },
     getSearchData() {  //* use regex.test for performance boost or String.indexOf
+      this.loading = true
       this.found = []
       this.searchData = this.tableData.filter((object,index) => {
         return [...Object.values(object)].some(item => item.includes(this.searchText)) ? this.found.push(index) : false
@@ -140,6 +142,7 @@
     include: [
       'allChecked',
       'selected',
+      'ascendingOrder',
       'register',
       'sortOrder',
       'removeItems',

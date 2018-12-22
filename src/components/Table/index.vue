@@ -1,36 +1,36 @@
 <template>
-  <div class="box">
-    <!-- Configurations -->
-    <!-- search -->
-    <Search v-model.lazy="searchText" v-debounce="500" />
-    <!-- filter -->
-    <select v-model="perPage" v-if="options.length">
-      <option v-for="option in options" :key="option" :value="option">
-        {{ option }}
-      </option>
-    </select>
-    <Delete :class="{'no-click':!selected.length}" v-bind="{removeAll}" />
+  <div class="table-container box" v-if="data.length">
+    <div class="card">
+      <Select v-bind="{options}" v-model="perPage" v-if="options.length" />
+      <Delete :class="{'no-click':!selected.length}" v-bind="{removeAll}" />
+      <Search v-model.lazy="searchText" :disabled="!tableData.length" />
+    </div>
     <Table>
-      <Head :titles="titles" v-on:order="sortOrder" v-if="titles.length" v-on:toggelAll="toggelAll" />
+      <Head :titles="titles" v-on:order="sortOrder" v-on:toggelAll="toggelAll" v-if="titles.length" />
       <Body :data="data" />
-      <Footer v-if="hasFooter" :titles="titles" />
+      <Footer :titles="titles" v-if="hasFooter" />
     </Table>
     <Pagination :current="page" :totalPages="totalPages" v-bind="{next, prev, setPage}" />
   </div>
 </template>
 
 <script>
-import debounce from '@/3rdparty/v-debounce.js';
+
 import Controller from './Controller.js';
-import {Table, Head, Body, Footer, Pagination, Delete, Search} from './components';
+import {Table, Head, Body, Footer, Pagination, Delete, Search, Select} from './components';
 
 export default {
   name: 'Dablue',
   extends: Controller,
   created () {
-    this.rowsPerPage = this.rowPerPage
+    if(!this.options.length) return
+    this.rowsPerPage = this.options [0]
   },
   props: {
+    hasKeyboard: {
+      type: Boolean,
+      default: false
+    },
     hasCheckbox: {
       type: Boolean,
       default: false
@@ -51,13 +51,10 @@ export default {
       type: Array,
       default: () => []
     },
-    rowPerPage: {
-      type: Number,
-      default: 10
-    }
-  },
-  directives:{
-    debounce
+    // rowPerPage: {
+    //   type: Number,
+    //   default: 10
+    // }
   },
   components: {
     Table,
@@ -66,13 +63,44 @@ export default {
     Footer,
     Pagination,
     Delete,
-    Search
+    Search,
+    Select
   }
 }
 </script>
 
 <style scoped>
-.no-click {
-  pointer-events: none;
+
+.table-container {
+  margin-top: 1rem;
+  display: flex;
+  padding: 1rem;
+  flex-direction: column;
 }
+
+#app .card {
+  display: flex;
+  padding: 1rem;
+  margin-top: 1rem;
+  border-radius: .3rem;
+}
+
+
+
+.column.right {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.table-bottom {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: row-reverse;
+}
+
+#app .no-click {
+  pointer-events: none;
+  background: rgba(217, 172, 181, 0.21176470588235294);
+}
+
 </style>
