@@ -100,7 +100,8 @@
       this.selected.includes(value) ? this.selected.splice(this.selected.indexOf(value),1): this.selected.push(value)
     },
     toggelAll() {
-      let items = this.tableData.slice(this.from, this.end)
+      // let items = this.tableData.slice(this.from, this.end)
+      let items = this.getCurrentPageData(!!this.searchText.length)
       //* index vs value  
       let [idx1, idx2] = [this.selected.indexOf(this.from), this.selected.indexOf(this.end-1)]
       this.allChecked ? this.selected.splice(idx1, idx2+1) : items.map((item,i) => this.selected.push(this.getValidIndex(i)))
