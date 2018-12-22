@@ -1,5 +1,5 @@
 <template>
-  <div class="table-container box">
+  <div class="table-container box" :class="{'no-data': !data.length}">
     <div class="card">
       <Select v-bind="{options}" v-model="perPage" v-if="options.length" />
       <Delete :class="{'no-click':!selected.length}" v-bind="{removeAll}" />
@@ -70,6 +70,10 @@ export default {
 </script>
 
 <style scoped>
+
+.table-container.no-data {
+  display: none;
+}
 
 .table-container {
   margin-top: 1rem;

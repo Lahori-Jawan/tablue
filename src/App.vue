@@ -1,8 +1,7 @@
 <template>
   <div id="app" class="container">
     <input type='file' accept='image/*' @change='openFile'>
-    <Table hasCheckbox hasKeyboard :options="[5, 10, 15, 'ALL']" :titles="titles" :data="tableData" v-if="tableData.length" />
-    <!-- <Table  :titles="titles" :data="tableData" /> -->
+    <Table hasCheckbox hasFooter :options="[5, 10, 15, 'ALL']" :titles="titles" :data="tableData" />
   </div>
 </template>
 

@@ -4,6 +4,7 @@
       <th v-for="(title, i) in titles" :key="i" v-html="title" @click="$emit('order',title)" 
         v-if="title !== 'check'">
       </th>
+      <th v-else></th>
     </tr>
   </tfoot>
 </template>

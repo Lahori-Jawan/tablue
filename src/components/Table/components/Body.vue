@@ -98,6 +98,9 @@ export default {
 .uppercase {
   text-transform: uppercase;
 }
+td, th {
+  padding: .75rem !important;
+}
 td {
   position: relative;
   vertical-align: middle;
