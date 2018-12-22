@@ -1,44 +1,36 @@
 <template>
-  <div>
-    <!-- Configurations -->
-    <!-- search -->
-    <input type="text" v-model.lazy="searchText" v-debounce="250">
-    <!-- filter -->
-    <select v-model="perPage" v-if="options.length">
-      <option v-for="option in options" :key="option" :value="option">
-        {{ option }}
-      </option>
-    </select>
-    <!-- delete all -->
-    <a :class="{'delete': true, 'no-click':!selected.length}" @click="removeAll()">&nbsp;</a>
-    <!-- pagination -->
-    <div class="pagination">
-      <a class="prev" @click="prev()">Prev</a>
-      <a v-for="p in totalPages" :key="p" @click="page=p"> {{ p }}</a>
-      <a class="next" @click="next()" style="padding-left: 2.5rem">Next</a>
+  <div class="table-container box" :class="{'no-data': !data.length}">
+    <div class="card">
+      <Select v-bind="{options}" v-model="perPage" v-if="options.length" />
+      <Delete :class="{'no-click':!selected.length}" v-bind="{removeAll}" />
+      <Search v-model.lazy="searchText" :disabled="!tableData.length" />
     </div>
-    <!-- Table -->
-    <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth">
-      <Head :titles="titles" v-on:order="sortOrder" v-if="titles.length" v-on:toggelAll="toggelAll" />
+    <Table>
+      <Head :titles="titles" v-on:order="sortOrder" v-on:toggelAll="toggelAll" v-if="titles.length" />
       <Body :data="data" />
-      <Footer v-if="hasFooter" :titles="titles" />
-    </table>
-    <!-- <Titles type="head" :titles="titles" /> -->
+      <Footer :titles="titles" v-if="hasFooter" />
+    </Table>
+    <Pagination :current="page" :totalPages="totalPages" v-bind="{next, prev, setPage}" />
   </div>
 </template>
 
 <script>
+
 import Controller from './Controller.js';
-import debounce from '../../3rdparty/v-debounce.js';
-import {Head, Body, Footer} from './components';
+import {Table, Head, Body, Footer, Pagination, Delete, Search, Select} from './components';
 
 export default {
-  name: 'Table',
+  name: 'Dablue',
   extends: Controller,
   created () {
-    this.rowsPerPage = this.rowPerPage
+    if(!this.options.length) return
+    this.rowsPerPage = this.options [0]
   },
   props: {
+    hasKeyboard: {
+      type: Boolean,
+      default: false
+    },
     hasCheckbox: {
       type: Boolean,
       default: false
@@ -59,25 +51,60 @@ export default {
       type: Array,
       default: () => []
     },
-    rowPerPage: {
-      type: Number,
-      default: 10
-    }
-  },
-  directives:{
-    debounce
+    // rowPerPage: {
+    //   type: Number,
+    //   default: 10
+    // }
   },
   components: {
+    Table,
     Head, 
     Body, 
     Footer,
+    Pagination,
+    Delete,
+    Search,
+    Select
   }
 }
 </script>
 
 <style scoped>
-.no-click {
-  pointer-events: none;
-}
-</style>
 
+.table-container.no-data {
+  display: none;
+}
+
+.table-container {
+  margin-top: 1rem;
+  display: flex;
+  padding: 1rem;
+  flex-direction: column;
+}
+
+#app .card {
+  display: flex;
+  padding: 1rem;
+  margin-top: 1rem;
+  border-radius: .3rem;
+}
+
+
+
+.column.right {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.table-bottom {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: row-reverse;
+}
+
+#app .no-click {
+  pointer-events: none;
+  background: rgba(217, 172, 181, 0.21176470588235294);
+}
+
+</style>

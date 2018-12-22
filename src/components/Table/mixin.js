@@ -1,6 +1,8 @@
 export default {
   created () {
-    this.$parent.hasCheckbox && this.titles.length ? this.titles.unshift('') : ''
+    if(!this.titles.length) return
+    this.titles.push('actions')
+    this.$parent.hasCheckbox ? this.titles.unshift('check') : this.titles.unshift('')
   },
   props: {
     titles: {

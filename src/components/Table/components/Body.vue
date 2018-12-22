@@ -1,14 +1,14 @@
 <template>
   <tbody>
-    <tr v-if="controller.loading">
-      <div class="overlay">Loading</div>
+    <tr v-if="!renderData.length">
+      <td colspan="100%">
+        <div class="not-found title">Sorry, could not find data :(</div>
+      </td>
     </tr>
-    <!-- <tr v-for="(item,i) in paymentData" :key="(item.ID+(new Date().getMilliseconds()))"> -->
-    <tr v-for="(item,i) in renderData" :key="`${item.ID}${(new Date().getMilliseconds())}`" v-else>
+    <tr v-for="(item,i) in renderData" :key="item.ID+'i'" v-else>
       <th>
         <input :id="item.ID" type="checkbox" @change="controller.toggleOne(i)"
           :checked="controller.selected.includes(controller.getValidIndex(i))" >
-        <!-- <input :id="item.ID" type="checkbox" :checked="controller.selected.includes(i)" @change="controller.toggleSelected(i)"> -->
       </th>
       <th class="uppercase">
         <label :for="item.ID">
@@ -18,20 +18,24 @@
       <td class="capitalize">{{ item.Name }}</td>
       <td class="capitalize description" @dblclick="editItem(item.Description)">
         <label>{{ item.Description }}</label>
-        <input :class="{'editing': Description === item.Description && editing}" type="text" 
-          :value="item.Description"
-          v-focus
+        <input type="text" :value="item.Description" v-focus
           @input="e => newDesc = e.target.value"
           @keyup.enter="controller.updateItem(newDesc, i)" 
           @keyup.esc="editing = false"
+          :class="{'editing': Description === item.Description && editing}" 
           >
       </td>
       <td>{{ item.Date }}</td>
       <td>{{ item.Amount }}</td>
-      <td @click="controller.removeOne(i)">x{{i}}</td>
+      <td>
+        <a @click="editItem(item.Description)">Edit</a>
+        <span>&nbsp;</span>
+        <a class="delete is-danger" @click="controller.removeOne(i)"></a>
+      </td>
     </tr>
   </tbody>
 </template>
+
 <script>
 export default {
   inject: {
@@ -69,7 +73,7 @@ export default {
   },
   directives: {
     focus: {
-      inserted(el) {
+      componentUpdated(el) {
         el.focus()
       },
     }
@@ -78,12 +82,6 @@ export default {
     renderData () {
       return this.controller.renderData()
     }
-    // paymentData: {
-    //   get: function() { return this.handler.paymentData() }
-    // },
-    // rowsPerPage: {
-    //   get: function() { return this.handler.rowsPerPage }
-    // }
   },
   watch: {
     data (latestData) {
@@ -99,6 +97,9 @@ export default {
 }
 .uppercase {
   text-transform: uppercase;
+}
+td, th {
+  padding: .75rem !important;
 }
 td {
   position: relative;
@@ -122,8 +123,20 @@ td input.editing {
 tr {
   font-size: .925rem;
 }
-.table.is-narrow td, 
-.table.is-narrow th {
-  padding: .5em;
+
+.description > label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 260px;
+}
+.not-found {
+  height: 5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #ff3860;
+  color: #fff;
+  border-left: .5rem solid #f80637;
 }
 </style>
