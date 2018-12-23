@@ -3,8 +3,9 @@
 
 ## Approach
 ```
-This component is based on DI(dependency injection) pattern utilizing Vue's provide/inject feature where Parent provides only public api 
-to children so children can validate their local state or notify parent of change in their state.
+This component is based on DI(dependency injection) pattern utilizing Vue's provide/inject feature where Parent
+provides only public api to children so children can validate their local state or notify parent of change in 
+their state.
 ```
 
 ## Project setup
