@@ -10,7 +10,7 @@
       <Body :data="data" />
       <Footer :titles="titles" v-if="hasFooter" />
     </Table>
-    <Pagination :current="page" :totalPages="totalPages" v-bind="{next, prev, setPage}" />
+    <Pagination :current="page" :keyboard="hasKeyboard" :totalPages="totalPages" v-bind="{next, prev, setPage}" />
   </div>
 </template>
 
@@ -88,8 +88,6 @@ export default {
   margin-top: 1rem;
   border-radius: .3rem;
 }
-
-
 
 .column.right {
   padding-left: 0;

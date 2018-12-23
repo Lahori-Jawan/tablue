@@ -16,11 +16,12 @@
         </label>
       </th>
       <td class="capitalize">{{ item.Name }}</td>
-      <td class="capitalize description" @dblclick="editItem(item.Description)">
+      <td class="capitalize description" 
+        @dblclick="editItem(item.Description)">
         <label>{{ item.Description }}</label>
         <input type="text" :value="item.Description" v-focus
           @input="e => newDesc = e.target.value"
-          @keyup.enter="controller.updateItem(newDesc, i)" 
+          @keyup.enter="done(i)" 
           @keyup.esc="editing = false"
           :class="{'editing': Description === item.Description && editing}" 
           >
@@ -28,9 +29,14 @@
       <td>{{ item.Date }}</td>
       <td>{{ item.Amount }}</td>
       <td>
-        <a @click="editItem(item.Description)">Edit</a>
-        <span>&nbsp;</span>
-        <a class="delete is-danger" @click="controller.removeOne(i)"></a>
+        <div class="tags has-addons">
+          <a :class="[ 'tag' ,Description === item.Description && editing ? 'editing' : 'is-info']"
+            @click="editItem(item.Description)">Edit</a>
+          <a :class="[ 'tag' ,Description === item.Description && editing ? 'is-success' : 'editing']"
+            @click="done(i)">Done</a>
+          <a class="tag is-delete" @click="controller.removeOne(i)"></a>
+        </div>
+        <!-- <a class="delete is-danger" @click="controller.removeOne(i)"></a> -->
       </td>
     </tr>
   </tbody>
@@ -44,6 +50,9 @@ export default {
   created () {
     this.registerOnParent(this.data)
   },
+  mounted () {
+    this.$el.addEventListener('keyup', this.keyup)
+  },
   props: {
     data: {
       type: Array,
@@ -56,9 +65,19 @@ export default {
     newDesc: ''
   }),
   methods: {
+    keyup(e) {
+      console.log(e.keyCode)
+      if(e.keyCode === 37 || e.keyCode === 39) {
+        e.preventDefault()
+      }
+    },
     editItem(store) {
       this.editing = true
       this.Description = store
+    },
+    done(index) {
+      this.editing = false
+      this.controller.updateItem(this.newDesc, index)
     },
     registerOnParent(data) {
       let objects = JSON.parse(JSON.stringify(data));   // don't mutate props
@@ -87,6 +106,9 @@ export default {
     data (latestData) {
       this.registerOnParent(latestData)
     }
+  },
+  beforeDestroy() {
+    this.$el.removeEventListener('keyup', this.keyup)
   }
 }
 </script>
@@ -119,6 +141,9 @@ td input.editing {
   width: 100%;
   left: 0;
   height: 100%;
+}
+.editing {
+  display: none;
 }
 tr {
   font-size: .925rem;
