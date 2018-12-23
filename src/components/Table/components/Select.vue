@@ -21,7 +21,6 @@ export default {
   },
   methods: {
     selected (value) {
-      console.log('changed')
       value = isNaN(parseInt(value)) ? 'All' : parseInt(value)
       this.$emit('input', value)
     }

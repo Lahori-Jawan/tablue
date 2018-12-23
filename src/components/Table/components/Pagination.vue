@@ -48,14 +48,14 @@
 //* 3: 1,---, $middle1, $middle2, $middle3,---, $last
 export default {
   created() {
-    // if(!this.keyboard) return
-  //  window.addEventListener('keyup', this.keyup)
+    if(!this.keyboard) return
+    document.addEventListener('keyup', this.keyup)
   },
   props: {
-    // keyboard: {
-    //   type: Boolean,
-    //   default: false
-    // },
+    keyboard: {
+      type: Boolean,
+      default: false
+    },
     next: {
       type: Function,
       required: false
@@ -127,11 +127,16 @@ export default {
         this.first = this.totalPages
         this.last = 0
     },
-    // keyup(e) {
-    //   if(e.keyCode === 37 || e.keyCode === 39) {
-    //     e.keyCode === 37 ? this.prev() : this.next()
-    //   }
-    // }
+    keyup(e) {
+      // Todo:: upgrade to latest spec i.e. e.key and degrade back to e.keyCode
+      if(e.defaultPrevented) return
+      if(e.keyCode === 37 || e.keyCode === 39) {
+        e.keyCode === 37 ? this.prev() : this.next()
+      }
+    }
+  },
+  beforeDestroy() {
+    this.$el.removeEventListener('keyup', this.keyup)
   }
 }
 </script>
